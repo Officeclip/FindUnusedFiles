@@ -687,7 +687,36 @@ namespace ITechnologyNET.FindUnusedFiles
                 DirectoryPath = path ?? folderBrowserDialog.SelectedPath;
                 try
                 {
-                    AllFiles = Directory.GetFiles(DirectoryPath, "*.*", SearchOption.AllDirectories).ToList();
+                    string[] allFilesInDirectory = Directory.GetFiles(
+                                                           DirectoryPath,
+                                                           "*.*",
+                                                           SearchOption.AllDirectories);
+                    if (txtSkipFolders.Text.Trim() == string.Empty)
+                    {
+                        AllFiles = allFilesInDirectory.ToList();
+                    }
+                    else
+                    {
+                        string[] skipFolders = txtSkipFolders.Text.Trim().Split("|".ToCharArray());
+                        AllFiles = new List<string>();
+                        foreach (string fileName in allFilesInDirectory)
+                        {
+                            bool isExcludeFile = false;
+                            foreach (string skipFolder in skipFolders)
+                            {
+                                isExcludeFile |= fileName.StartsWith(
+                                                         string.Format(
+                                                                       @"{0}\{1}",
+                                                                       DirectoryPath,
+                                                                       skipFolder));
+
+                            }
+                            if (!isExcludeFile)
+                            {
+                                AllFiles.Add(fileName);
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
